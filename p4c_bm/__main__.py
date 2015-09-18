@@ -29,12 +29,14 @@ from p4_hlir.main import HLIR
 import gen_json
 import gen_pd
 import json
-
+import yaml
 
 def get_parser():
     parser = argparse.ArgumentParser(description='p4c-bm arguments')
     parser.add_argument('source', metavar='source', type=str,
                         help='A source file to include in the P4 program.')
+    parser.add_argument('--dump_yaml', action='store_true', default = False,
+                        help='dump yaml representation of smart dictionary')
     parser.add_argument('--json', dest='json', type=str,
                         help='Dump the JSON representation to this file.',
                         required=False)
@@ -70,6 +72,10 @@ def _validate_dir(path):
         sys.exit(1)
     return path
 
+def dump_render_dict(render_dict, out = sys.stdout):
+    # output = json.dumps(render_dict)
+    output =  yaml.dump(render_dict)
+    out.write(output)
 
 def main():
     parser = get_parser()
@@ -103,6 +109,9 @@ def main():
             print "Generating json output to", path_json
             with open(path_json, 'w') as fp:
                 json.dump(json_dict, fp, indent=4, separators=(',', ': '))
+        if args.dump_yaml:
+            with open("yaml_dump.yml", 'w') as f:
+                dump_render_dict(json_dict, f)
 
     if args.pd:
         print "Generating PD source files in", path_pd
